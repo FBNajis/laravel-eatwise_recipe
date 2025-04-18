@@ -25,7 +25,10 @@ Route::middleware('api')->group(function () {
     Route::get('/recipes/category', [RecipeController::class, 'catRecipes']);
     Route::get('/recipes/budget', [RecipeController::class, 'budRecipes']);
     // Route for searching recipes
-    Route::get('/recipes/search', [RecipeController::class, 'searchRecipes']); // Add this line
+    Route::get('/recipes/search', [RecipeController::class, 'searchRecipes']);
+
+    // Public comment routes
+    Route::get('/recipes/{id}/comments', [RecipeController::class, 'getComments']);
 
     // Authenticated routes
     Route::middleware('auth:sanctum')->group(function () {
@@ -37,6 +40,9 @@ Route::middleware('api')->group(function () {
         // User-specific recipe routes
         Route::get('/user/recipes', [RecipeController::class, 'userRecipes']);
         Route::get('/user/recipes/liked', [RecipeController::class, 'likedRecipes']);
+
+        // Comment routes
+        Route::post('/recipes/{id}/comments', [RecipeController::class, 'addComment']);
         
         // Like/unlike routes
         Route::post('/recipes/{id}/like', [RecipeController::class, 'like']);

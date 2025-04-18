@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Recipe;
+use App\Models\User;
+use App\Models\Comment;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
@@ -278,6 +280,55 @@ class RecipeController extends Controller
         return response()->json([
             'message' => 'Liked recipes retrieved successfully',
             'data' => $recipes,
+        ]);
+    }
+
+    public function addComment(Request $request, $recipeId)
+    {
+        $recipe = Recipe::findOrFail($recipeId);
+
+        $validated = $request->validate([
+            'comment' => 'required|string|max:1000',
+        ]);
+
+        $comment = Comment::create([
+            'user_id' => $request->user()->id,
+            'recipe_id' => $recipeId,
+            'comment' => $validated['comment'],
+        ]);
+
+        return response()->json([
+            'message' => 'Comment added successfully',
+            'data' => [
+                'id' => $comment->id,
+                'username' => $request->user()->username,  // Display username
+                'comment' => $comment->comment,
+                'created_at' => $comment->created_at->toDateTimeString(),
+            ],
+        ]);
+    }
+
+    public function getComments($recipeId)
+    {
+        $recipe = Recipe::findOrFail($recipeId);
+
+        $comments = $recipe->comments()
+            ->with('user:id,username')  // Hanya mengambil username
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($comment) {
+                return [
+                    'id' => $comment->id,
+                    'username' => $comment->user->username, // Menampilkan username pada komentar
+                    'comment' => $comment->comment,
+                    'created_at' => $comment->created_at->toDateTimeString(),
+                ];
+            });
+
+        return response()->json([
+            'message' => 'Comments retrieved successfully',
+            'comment_count' => $comments->count(),
+            'data' => $comments,
         ]);
     }
 

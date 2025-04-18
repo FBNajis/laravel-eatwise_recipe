@@ -65,6 +65,11 @@ class Recipe extends Model
         return $query->where('status', 'approved');
     }
 
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
     // Handler untuk delete dan update gambar otomatis
     protected static function booted()
     {
